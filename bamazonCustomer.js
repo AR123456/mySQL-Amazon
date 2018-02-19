@@ -3,7 +3,7 @@ var inquirer = require("inquirer");
 var fs = require("fs");
 //https://www.npmjs.com/package/mysql
 var mysql = require("mysql");
-//connect to the dv
+//connect to the db
 var connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
@@ -11,77 +11,85 @@ var connection = mysql.createConnection({
   password: "midnight1",
   database: "bamazon"
 });
-//check if connection worked then begin the
+//check if connection worked then begin the program
 connection.connect(function(err) {
   if (err) throw err;
-  // console.log("connected as id " + connection.threadId + "\n");
- readProducts();
+  console.log("connected as id " + connection.threadId + "\n");
 });
-function readProducts() {
-  // console.log("Selecting all products...\n");
-  connection.query("SELECT * FROM products", function(err, res) {
-    if (err) throw err;
-    // Log all results of the SELECT statement
-    // console.log(res);
-    console.log("-----------------------------------");
-    for (var i = 0; i < res.length; i++) {
-      console.log(res[i].id + " | " + res[i].product + " | " + res[i].department + " | " + res[i].price + " | " + res[i].stock
+// display the products table 
+connection.query("SELECT * FROM products", function(err, res) {
+  if (err) throw err;
+  // Log all results of the SELECT statement
+  // console.log(res);
+  console.log("----------Products for sale----------------------");
+  for (var i = 0; i < res.length; i++) {
+    console.log(
+      res[i].id +
+        " | " +
+        res[i].product +
+        " | " +
+        res[i].department +
+        " | " +
+        res[i].price +
+        " | " +
+        res[i].stock
     );
-    }
-    console.log("-----------------------------------");
-    // connection.end();
-    purchase()
-  });
-}
-  
-  function purchase(){
-  // console.log("you are in the purchase function ");
-    inquirer.prompt([
-    {
-      type: "input",
-      name: "whatpurchase",
-      message: "What is the ID of the product that you would like to purchase?",
-    },
-    {
-      type: "input",
-      name: "howmany",
-      message: "How many would you like?",
-    }
-  ]).then(function(answer){
-    if (answer.whatpurchase >0 <11) {
-      console.log("ID of your purchaser is:  "+answer.whatpurchase);
-    } else{
-      console.log("Try again");
-    }
-    if (answer.howmany > 0 ) {
-      console.log("You would like:  "+answer.howmany);
-        }
-        else{
-        console.log("Try again");
-        }
-     updateProduct();  
-  })
-  function updateProduct() {
-    console.log("you are in the updateProduct function .\n");
-    var query = connection.query(
-      "UPDATE products SET ? WHERE ?",
-      [
-        {
-          stock: 9//this needs to decrement byanswer.howmany
-        },
-        {
-          id: 1
-        }
-      ],
-      function(err, res) {
-        console.log(res.affectedRows + " products updated!\n");
-       }
-    );
-  
-    // logs the actual query being run
-    console.log(query.sql);
   }
+  console.log("------------------------------------------------");
+  ///customer prompts //
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "whatpurchase",
+        message:
+          "What is the ID of the product that you would like to purchase?"
+      },
+      {
+        type: "input",
+        name: "howmany",
+        message: "How many would you like?"
+      }
+    ])
+    .then(function(answer) {
+      //check store stock, in not enough stop order and display insufficient quantity
+      // var itemID = answer.whatpurchase;
+      connection.query(
+        "SELECT * FROM products WHERE ?",
+        { id: answer.whatpurchase },
+        function(err, res) {
+          if (err) throw err;
+          var item = res[0];
+          if (answer.howmany < item.stock) {
+            //proceed with purchase
+            var stockRemaining = item.stock - answer.howmany;
+            var sale = answer.howmany * item.price;
+            connection.query(
+              "UPDATE products SET ? WHERE ?",
+              [
+                {
+                  stock: stockRemaining
+                },
+                {
+                  id: answer.whatpurchase
+                }
+              ],
+              function(err, res) {
+                if (err) throw err;
 
+                console.log("The total for your purchase is $" + sale + ".");
 
-
-  }
+                console.log(
+                  "Number of " + item.product + "(s) left: " + stockRemaining
+                );
+              }
+            ); //end update products
+          } else {
+            // end of if its in stock
+            console.log("Insufficient quantity.");
+            return "Insufficient quantity.";
+          } // end of else not enough
+        }
+      );
+    }); //user prompt
+}); //this is the connection function
