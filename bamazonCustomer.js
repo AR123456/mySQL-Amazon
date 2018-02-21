@@ -22,8 +22,7 @@ connection.query("SELECT * FROM products", function(err, res) {
   // Log all results of the SELECT statement
   // console.log(res);
   console.log("----------Products for sale----------------------");
-  for (var i = 0; i < res.length; i++) {
-    console.log(
+  for (var i = 0; i < res.length; i++) { console.log(
       res[i].id +
         " | " +
         res[i].product +
@@ -89,6 +88,27 @@ connection.query("SELECT * FROM products", function(err, res) {
             console.log("Insufficient quantity.");
             return "Insufficient quantity.";
           } // end of else not enough
+
+          // department logic here need total sales - add a column for this in the database then pull it for app display 
+          				// put total cost into totalSales column for the related department
+
+				connection.query('SELECT * FROM products WHERE ?', {department: item.department}, function(err, res ) {
+          if (err) throw err;
+  
+          var total = sale + res[0].totalSales;
+  
+          connection.query('UPDATE products SET ? WHERE ?', [{
+                  totalSales: total
+              }, {
+                  department: item.department
+              }], function(err, res) {
+              if (err) throw err;
+              
+              console.log(item.department + "'s total sales are: $" + total);
+           }); // end of query update departments in product table 
+  
+          }); // end of connrvyion query for select department 
+
         }
       );
     }); //user prompt
