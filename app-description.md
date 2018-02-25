@@ -27,7 +27,7 @@ If the manager selects View Products for Sale, the app lists every available ite
 If the manager selects View Low Inventory, they will see a  list all items with an inventory count lower than five.
 If the manager selects Add to Inventory,they will be presented with prompts to select the item and quantity to add. 
 If the manager selects Add to Inventory,they will be prompted to add the new product to the store.
-  Screen shots"
+  Screen shots:
   Manager Menu
   View Products for Sale
   View Low Inventory
