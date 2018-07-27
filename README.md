@@ -16,8 +16,9 @@ To run the app type bamazonCustomer.js at the Node prompt.
 The customer will be presented with a prompt asking them the ID of the product they would like to buy and another asking the quantity. If the store has an insufficient quantity to fill the order, the customer will be told that and the transaction will not go through. When a purchase is made, the total cost of the purchase will be displayed,the database will be updated and the new remaining quantity displayed.
 Screen shots :
 Customer-View
-![Customer-View](screen-shots/Customer-View.jpg?raw=true "Optional Title")
-products-menu-after-purchase
+![Customer-View](mySQL-Amazon/screen-shots/Customer-View.jpg?raw=true "Optional Title")
+![Products-menu](mySQL-Amazon/screen-shots/products-menu-after-purchase.gif?raw=true "Optional Title")
+
 highest-gross-dept
 insufficient-quantity
 database-view
